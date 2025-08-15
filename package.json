@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "C2 server functions for Project Chimera",
   "dependencies": {
-    "@netlify/blobs": "^7.5.0"
+    "@netlify/blobs": "latest",
+    "firebase-admin": "^12.1.1"
   }
 }
