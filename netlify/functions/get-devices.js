@@ -1,36 +1,30 @@
-import { getStore } from "@netlify/blobs";
+const { getStore } = require("@netlify/blobs");
 
-export default async (req) => {
-    const url = new URL(req.url);
-    const deviceId = url.searchParams.get("deviceId");
+const getStoreWithOptions = (storeName) => {
+  return getStore({
+    name: storeName,
+    siteID: process.env.NETLIFY_SITE_ID,
+    token: process.env.NETLIFY_API_TOKEN,
+  });
+};
 
-    if (!deviceId) {
-        return new Response("Missing deviceId parameter", { status: 400 });
-    }
-    
-    try {
-        const store = getStore(deviceId);
-        const { blobs } = await store.list();
-
-        const dataEntries = await Promise.all(
-            blobs.map(async (blob) => {
-                const data = await store.get(blob.key, { type: 'json' });
-                return data;
-            })
-        );
-        
-        dataEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-        return new Response(JSON.stringify(dataEntries), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-
-    } catch (error) {
-        console.error("Failed to get device data:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+exports.handler = async () => {
+  try {
+    const store = getStoreWithOptions("devices");
+    const { blobs } = await store.list();
+    const detailedDevices = await Promise.all(
+      blobs.map(async (blob) => {
+        const data = await store.get(blob.key, { type: 'json' });
+        return { deviceId: blob.key, token: data.token };
+      })
+    );
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(detailedDevices),
+    };
+  } catch (error) {
+    console.error("Failed to get devices:", error);
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+  }
 };
