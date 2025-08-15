@@ -1,10 +1,9 @@
 {
-  "name": "chimeradmin-c2-server",
+  "name": "trojan-backend",
   "version": "1.0.0",
-  "type": "module",
-  "description": "C2 server functions for Project Chimera",
+  "description": "Backend functions for the trojan admin panel.",
   "dependencies": {
-    "@netlify/blobs": "^7.0.0",
-    "firebase-admin": "^12.1.1"
+    "@netlify/blobs": "^6.4.0",
+    "firebase-admin": "^12.0.0"
   }
 }
