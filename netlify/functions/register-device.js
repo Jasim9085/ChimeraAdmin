@@ -1,0 +1,33 @@
+import { getStore } from "@netlify/blobs";
+
+export default async (req) => {
+  if (req.method !== "POST") {
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
+  try {
+    const { deviceId, token } = await req.json();
+    if (!deviceId || !token) {
+      return new Response("Missing deviceId or token", { status: 400 });
+    }
+
+    const store = getStore("devices");
+    const deviceData = {
+      token: token,
+      lastSeen: new Date().toISOString(),
+    };
+    
+    await store.setJSON(deviceId, deviceData);
+
+    return new Response(JSON.stringify({ success: true, deviceId }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Registration failed:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
