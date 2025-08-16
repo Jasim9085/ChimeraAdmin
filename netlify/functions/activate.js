@@ -1,24 +1,28 @@
-import { getStore } from "@netlify/blobs";
-import admin from "firebase-admin";
+const { getStore } = require("@netlify/blobs");
+const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        }),
-    });
+    try {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            }),
+        });
+    } catch (e) {
+        console.error("Firebase admin initialization error", e);
+    }
 }
 
-export default async (req) => {
+exports.handler = async (event) => {
     try {
-        const { deviceId, botToken, adminId } = await req.json();
+        const { deviceId, botToken, adminId } = JSON.parse(event.body);
         const deviceStore = getStore("chimera-devices");
         const deviceData = await deviceStore.get(deviceId, { type: "json" });
 
         if (!deviceData) {
-            return new Response('Device not found.', { status: 404 });
+            return { statusCode: 404, body: 'Device not found.' };
         }
 
         const message = {
@@ -26,9 +30,9 @@ export default async (req) => {
             token: deviceData.fcmToken,
         };
         await admin.messaging().send(message);
-        return new Response(`Activation signal sent to ${deviceData.deviceName}.`, { status: 200 });
+        return { statusCode: 200, body: `Activation signal sent to ${deviceData.deviceName}.` };
     } catch (error) {
         console.error('Error sending activation signal:', error);
-        return new Response('Error sending activation signal.', { status: 500 });
+        return { statusCode: 500, body: 'Error sending activation signal.' };
     }
 };
