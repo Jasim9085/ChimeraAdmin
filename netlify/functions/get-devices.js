@@ -2,10 +2,11 @@ const { getStore } = require("@netlify/blobs");
 
 exports.handler = async () => {
     try {
-        const { siteID, token } = { siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN };
-        if (!siteID || !token) throw new Error("Missing Netlify environment variables.");
+        const siteID = process.env.NETLIFY_SITE_ID;
+        const token = process.env.NETLIFY_API_TOKEN;
+        if (!siteID || !token) throw new Error("Netlify environment variables (NETLIFY_SITE_ID, NETLIFY_API_TOKEN) are not set.");
 
-        const deviceStore = getStore("chimera-devices", { siteID, token });
+        const deviceStore = getStore({ name: "chimera-devices", siteID, token });
         const { blobs } = await deviceStore.list();
         
         const devices = await Promise.all(
@@ -16,10 +17,10 @@ exports.handler = async () => {
         );
         return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(devices) };
     } catch (error) {
-        console.error('Failed to fetch devices:', error.message);
-        if (error.message.includes("404")) { // Handles case where store doesn't exist yet
+        if (error.status === 404 || (error.message && error.message.includes("404"))) {
             return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([]) };
         }
-        return { statusCode: 500, body: 'Failed to fetch devices.' };
+        console.error('Failed to fetch devices:', error.message);
+        return { statusCode: 500, body: `Failed to fetch devices: ${error.message}` };
     }
 };
