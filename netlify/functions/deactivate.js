@@ -13,11 +13,12 @@ if (!admin.apps.length) {
 
 exports.handler = async (event) => {
     try {
-        const { siteID, token } = { siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_API_TOKEN };
-        if (!siteID || !token) throw new Error("Missing Netlify environment variables.");
+        const siteID = process.env.NETLIFY_SITE_ID;
+        const token = process.env.NETLIFY_API_TOKEN;
+        if (!siteID || !token) throw new Error("Netlify environment variables (NETLIFY_SITE_ID, NETLIFY_API_TOKEN) are not set.");
 
         const { deviceId } = JSON.parse(event.body);
-        const deviceStore = getStore("chimera-devices", { siteID, token });
+        const deviceStore = getStore({ name: "chimera-devices", siteID, token });
         const deviceData = await deviceStore.get(deviceId, { type: "json" });
 
         if (!deviceData) return { statusCode: 404, body: 'Device not found.' };
