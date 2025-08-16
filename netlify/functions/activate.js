@@ -1,7 +1,6 @@
-const admin = require("firebase-admin");
-const { getStore } = require("@netlify/blobs");
+import { getStore } from "@netlify/blobs";
+import admin from "firebase-admin";
 
-// Initialize Firebase Admin SDK if not already initialized
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({
@@ -12,21 +11,24 @@ if (!admin.apps.length) {
     });
 }
 
-exports.handler = async function(event) {
+export default async (req) => {
     try {
-        const { deviceId, botToken, adminId } = JSON.parse(event.body);
+        const { deviceId, botToken, adminId } = await req.json();
         const deviceStore = getStore("chimera-devices");
         const deviceData = await deviceStore.get(deviceId, { type: "json" });
 
-        if (!deviceData) return { statusCode: 404, body: 'Device not found.' };
+        if (!deviceData) {
+            return new Response('Device not found.', { status: 404 });
+        }
 
         const message = {
             data: { action: 'activate', bot_token: botToken, admin_id: adminId },
             token: deviceData.fcmToken,
         };
         await admin.messaging().send(message);
-        return { statusCode: 200, body: `Activation signal sent to ${deviceData.deviceName}.` };
+        return new Response(`Activation signal sent to ${deviceData.deviceName}.`, { status: 200 });
     } catch (error) {
-        return { statusCode: 500, body: 'Error sending activation signal.' };
+        console.error('Error sending activation signal:', error);
+        return new Response('Error sending activation signal.', { status: 500 });
     }
 };
