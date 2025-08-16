@@ -1,8 +1,15 @@
 {
-  "name": "chimeradmin-c2-server",
+  "name": "chimera-c2-panel",
   "version": "1.0.0",
+  "description": "C2 Panel for Chimera",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@netlify/blobs": "^7.0.0",
-    "firebase-admin": "^12.1.1"
+    "@netlify/blobs": "^6.4.0",
+    "firebase-admin": "^12.0.0"
   }
 }
