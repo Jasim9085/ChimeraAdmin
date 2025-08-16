@@ -1,30 +1,23 @@
-const { getStore } = require("@netlify/blobs");
+import { getStore } from "@netlify/blobs";
 
-const getStoreWithOptions = (storeName) => {
-  return getStore({
-    name: storeName,
-    siteID: process.env.NETLIFY_SITE_ID,
-    token: process.env.NETLIFY_API_TOKEN,
-  });
-};
+export default async () => {
+    try {
+        const deviceStore = getStore("chimera-devices");
+        const { blobs } = await deviceStore.list();
+        
+        const devices = await Promise.all(
+            blobs.map(async (blob) => {
+                const data = await deviceStore.get(blob.key, { type: "json" });
+                return { deviceId: blob.key, deviceName: data.deviceName };
+            })
+        );
 
-exports.handler = async () => {
-  try {
-    const store = getStoreWithOptions("devices");
-    const { blobs } = await store.list();
-    const detailedDevices = await Promise.all(
-      blobs.map(async (blob) => {
-        const data = await store.get(blob.key, { type: 'json' });
-        return { deviceId: blob.key, token: data.token };
-      })
-    );
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(detailedDevices),
-    };
-  } catch (error) {
-    console.error("Failed to get devices:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
-  }
+        return new Response(JSON.stringify(devices), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        console.error('Failed to fetch devices:', error);
+        return new Response('Failed to fetch devices.', { status: 500 });
+    }
 };
