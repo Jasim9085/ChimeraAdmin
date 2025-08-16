@@ -1,15 +1,15 @@
-import { getStore } from "@netlify/blobs";
+const { getStore } = require("@netlify/blobs");
 
-export default async (req) => {
+exports.handler = async (event) => {
     try {
-        const { deviceId, deviceName, stackTrace } = await req.json();
+        const { deviceId, deviceName, stackTrace } = JSON.parse(event.body);
         const crashStore = getStore("chimera-crashes");
         const crashId = `${deviceId}-${new Date().toISOString()}`;
         
-        await crashStore.setJSON(crashId, { deviceName, stackTrace });
-        return new Response('Crash log stored.', { status: 200 });
+        await crashStore.setJSON(crashId, { deviceName, stackTrace, receivedAt: new Date().toISOString() });
+        return { statusCode: 200, body: 'Crash log stored.' };
     } catch (error) {
         console.error('Failed to log crash:', error);
-        return new Response('Failed to log crash.', { status: 500 });
+        return { statusCode: 500, body: 'Failed to log crash.' };
     }
 };
