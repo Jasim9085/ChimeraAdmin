@@ -1,6 +1,6 @@
-import { getStore } from "@netlify/blobs";
+const { getStore } = require("@netlify/blobs");
 
-export default async () => {
+exports.handler = async () => {
     try {
         const deviceStore = getStore("chimera-devices");
         const { blobs } = await deviceStore.list();
@@ -12,12 +12,13 @@ export default async () => {
             })
         );
 
-        return new Response(JSON.stringify(devices), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(devices)
+        };
     } catch (error) {
         console.error('Failed to fetch devices:', error);
-        return new Response('Failed to fetch devices.', { status: 500 });
+        return { statusCode: 500, body: 'Failed to fetch devices.' };
     }
 };
