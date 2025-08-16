@@ -1,34 +1,16 @@
 const { getStore } = require("@netlify/blobs");
 
-const getStoreWithOptions = (storeName) => {
-  return getStore({
-    name: storeName,
-    siteID: process.env.NETLIFY_SITE_ID,
-    token: process.env.NETLIFY_API_TOKEN,
-  });
-};
-
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-  try {
-    const { deviceId, token } = JSON.parse(event.body);
-    if (!deviceId || !token) {
-      return { statusCode: 400, body: "Missing deviceId or token" };
+exports.handler = async function(event) {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method Not Allowed' };
     }
-    const store = getStoreWithOptions("devices");
-    await store.setJSON(deviceId, {
-      token: token,
-      lastSeen: new Date().toISOString(),
-    });
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, deviceId }),
-    };
-  } catch (error) {
-    console.error("Registration failed:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
-  }
+    try {
+        const data = JSON.parse(event.body);
+        const { deviceId, deviceName, fcmToken } = data;
+        const deviceStore = getStore("chimera-devices");
+        await deviceStore.setJSON(deviceId, { deviceName, fcmToken });
+        return { statusCode: 200, body: 'Device registered successfully.' };
+    } catch (error) {
+        return { statusCode: 500, body: 'Registration failed.' };
+    }
 };
