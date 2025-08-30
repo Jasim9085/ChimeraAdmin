@@ -60,6 +60,7 @@
         async function fetchDevices() {
             log('Fetching registered devices...');
             try {
+                loadReqInfo()
                 const response = await fetch('/.netlify/functions/get-devices');
                 if (!response.ok) throw new Error(`Server responded with ${response.status}`);
                 const devices = await response.json();
